@@ -46,24 +46,25 @@ dr1_norm <- function(x, v, s_diag, mu = rep(0, length(x)), log = FALSE) {
 #' Calculates the gaussian mixture density.
 #'
 #' This function assumes that the mixing means are all zeros and
-#' the mixing covariances are structured as a rank-1 matrix plus
-#' a diagonal matrix.
+#' the mixing covariances are rank-1 matrices. Each observation
+#' has its own independent noise (variances collected in
+#' \code{s_mat}).
 #'
 #' @param x_mat A matrix of data. The rows index the observations and
 #'     the columns index the variables.
 #' @param pi_vec A vector of mixture proportions.
-#' @param v_mat A matrix of square-roots of the rank-1 portion of the
-#'     the mixing covariance matrices. The columns index the mixing
+#' @param v_mat A matrix of square-roots of the rank-1 mixing
+#'     covariance matrices. The columns index the mixing
 #'     components, the rows index the variables.
-#' @param s_mat A matrix of diagonal elements of the diagonal portion
-#'     of the mixing covariance matrices. The columns index the
-#'     variables and the rows index observations.
+#' @param s_mat A matrix of variances (NOT standard deviations).
+#'     The rows index the observations and the columns index the
+#'     variables.
 #' @param log A logical. Should we return the log-density
 #'     (\code{TRUE}) or not (\code{FALSE})?
 #'
 #' @author David Gerard
 #'
-dmixlike <- function(x_mat, pi_vec, v_mat, s_mat, log = FALSE) {
+dmixlike <- function(x_mat, s_mat, v_mat, pi_vec, log = FALSE) {
 
   ## Test input -------------------------------------------
   assertthat::assert_that(is.matrix(x_mat))
@@ -82,20 +83,10 @@ dmixlike <- function(x_mat, pi_vec, v_mat, s_mat, log = FALSE) {
   assertthat::assert_that(abs(sum(pi_vec) - 1) < 10 ^ -12)
 
   ## Get matrix of log-likelihood values ------------------
-  llike_mat <- matrix(NA, nrow = N, ncol = K)
-
-  for (obs_index in 1:N) {
-    for (mix_index in 1:K) {
-      x_current <- x_mat[obs_index, ]
-      v_current <- v_mat[, mix_index]
-      s_current <- s_mat[obs_index, ]
-      pi_current <- pi_vec[mix_index]
-
-      llike <- dr1_norm(x = x_current, v = v_current,
-                        s_diag = s_current, log = TRUE)
-      llike_mat[obs_index, mix_index] <- llike + log(pi_current)
-    }
-  }
+  llike_mat <- get_llike_mat(x_mat = x_mat,
+                             s_mat = s_mat,
+                             v_mat = v_mat,
+                             pi_vec = pi_vec)
 
   ## log-sum-exponential trick for each row, then sum.
   rowmax <- apply(llike_mat, 1, max)
@@ -107,4 +98,49 @@ dmixlike <- function(x_mat, pi_vec, v_mat, s_mat, log = FALSE) {
   } else {
     return(exp(llike_tot))
   }
+}
+
+
+#' Get's a matrix of likeklihood values.
+#'
+#' Element (i, j) of the returned matrix is the log of
+#' pi_j N(x_i | 0, v_j v_j^T + S_i)
+#'
+#' @inheritParams dmixlike
+#'
+#' @author David Gerard
+#'
+get_llike_mat <- function(x_mat, s_mat, v_mat, pi_vec) {
+
+  ## Test input -------------------------------------------
+  assertthat::assert_that(is.matrix(x_mat))
+  assertthat::assert_that(is.matrix(v_mat))
+  assertthat::assert_that(is.matrix(s_mat))
+
+  R <- ncol(x_mat)
+  N <- nrow(x_mat)
+  K <- ncol(v_mat)
+
+  assertthat::are_equal(R, nrow(v_mat))
+  assertthat::are_equal(N, nrow(s_mat))
+  assertthat::are_equal(R, ncol(s_mat))
+  assertthat::are_equal(K, length(pi_vec))
+  assertthat::assert_that(abs(sum(pi_vec) - 1) < 10 ^ -12)
+
+  ## Get matrix of log-likelihood values ------------------
+  llike_mat <- matrix(NA, nrow = N, ncol = K)
+
+  for (obs_index in 1:N) {
+    x_current <- x_mat[obs_index, ]
+    s_current <- s_mat[obs_index, ]
+    for (mix_index in 1:K) {
+      v_current <- v_mat[, mix_index]
+      pi_current <- pi_vec[mix_index]
+      llike <- dr1_norm(x = x_current, v = v_current,
+                        s_diag = s_current, log = TRUE)
+      llike_mat[obs_index, mix_index] <- llike + log(pi_current)
+    }
+  }
+
+  return(llike_mat)
 }
