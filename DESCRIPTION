@@ -10,4 +10,8 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/dcgerard/UltimateDeconvolution
 BugReports: http://github.com/dcgerard/vicar/UltimateDeconvolution
-Suggests: testthat
+Suggests: testthat,
+    mvtnorm,
+    covr
+RoxygenNote: 6.0.1
+Imports: assertthat
