@@ -25,3 +25,44 @@ test_that("Normal Density is Accurate", {
   }
 }
 )
+
+test_that("dmixlike runs OK", {
+
+  if (requireNamespace("mixAK", quietly = TRUE)) {
+    set.seed(45)
+    K <- 3
+    R <- 11
+    N <- 7
+
+    x_mat <- matrix(stats::rnorm(N * R), nrow = N)
+    s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N)
+    pi_vec <- stats::runif(K)
+    pi_vec <- pi_vec / sum(pi_vec)
+    v_mat <- matrix(stats::rnorm(R * K), nrow = R)
+
+    me_like <- dmixlike(x_mat = x_mat, s_mat = s_mat, pi_vec = pi_vec,
+                        v_mat = v_mat, log = TRUE)
+
+    ## Set input to be same as in mixAK package
+    llike_vec <- rep(NA, length = N)
+    mean_mat <- matrix(0, nrow = K, ncol = R)
+    for (obs_index in 1:N) {
+      Sigma_list <- list()
+      for (mix_index in 1:K) {
+        Sigma_list[[mix_index]] <- diag(s_mat[obs_index, ]) +
+          tcrossprod(v_mat[, mix_index])
+      }
+      llike <- mixAK::dMVNmixture(x = x_mat[obs_index, ],
+                                  weight = pi_vec,
+                                  mean = mean_mat,
+                                  Sigma = Sigma_list,
+                                  log = TRUE)
+      llike_vec[obs_index] <- llike
+    }
+    them_like <- sum(llike_vec)
+    expect_equal(me_like, them_like)
+  } else {
+    skip("mixAK not installed")
+  }
+}
+)
