@@ -12,6 +12,8 @@
 #'     density (\code{FALSE})?
 #' @author David Gerard
 #'
+#' @export
+#'
 dr1_norm <- function(x, v, s_diag, mu = rep(0, length(x)), log = FALSE) {
 
   ## Check input
