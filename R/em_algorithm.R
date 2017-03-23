@@ -44,11 +44,11 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
   assertthat::are_equal(K, length(pi_vec))
   assertthat::assert_that(abs(sum(pi_vec) - 1) < 10 ^ -12)
 
-  llike_current <- dmixlike(x_mat = x_mat,
-                            s_mat = s_mat,
-                            v_mat = v_mat,
-                            pi_vec = pi_vec,
-                            log = TRUE)
+  llike_current <- dmixlike_cpp(x_mat = x_mat,
+                                s_mat = s_mat,
+                                v_mat = v_mat,
+                                pi_vec = pi_vec,
+                                return_log = TRUE)
 
   iterindex <- 1
   err <- tol + 1
@@ -59,18 +59,18 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
     llike_old <- llike_current
 
     fout <- em_fix(x_mat = x_mat,
-                   s_mat = s_mat,
-                   v_mat = v_mat,
-                   pi_vec = pi_vec)
+                       s_mat = s_mat,
+                       v_mat = v_mat,
+                       pi_vec = pi_vec)
 
     v_mat <- fout$v_mat
     pi_vec <- fout$pi_vec
 
-    llike_current <- dmixlike(x_mat = x_mat,
-                              s_mat = s_mat,
-                              v_mat = v_mat,
-                              pi_vec = pi_vec,
-                              log = TRUE)
+    llike_current <- dmixlike_cpp(x_mat = x_mat,
+                                  s_mat = s_mat,
+                                  v_mat = v_mat,
+                                  pi_vec = pi_vec,
+                                  return_log = TRUE)
 
     llike_vec <- c(llike_vec, llike_current)
     ## Make sure likelihood increases (within some tolerance)

@@ -69,3 +69,10 @@ List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 
   return List::create(_["pi_vec"] = pi_new, _["v_mat"] = v_new);
 }
+
+
+
+
+
+
+
