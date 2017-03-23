@@ -15,4 +15,6 @@ Suggests: testthat,
     covr,
     mixAK
 RoxygenNote: 6.0.1
-Imports: assertthat
+Imports: assertthat,
+    Rcpp
+LinkingTo: Rcpp

@@ -66,6 +66,8 @@ dr1_norm <- function(x, v, s_diag, mu = rep(0, length(x)), log = FALSE) {
 #'
 #' @author David Gerard
 #'
+#' @export
+#'
 dmixlike <- function(x_mat, s_mat, v_mat, pi_vec, log = FALSE) {
 
   ## Test input -------------------------------------------
@@ -145,4 +147,43 @@ get_llike_mat <- function(x_mat, s_mat, v_mat, pi_vec) {
   }
 
   return(llike_mat)
+}
+
+
+
+#' Random draw from mixture of multivariate normals.
+#'
+#' It is assumed that the mixing covariances are rank-1 (with their square roots in
+#' \code{v_mat}) and the observation covariances are diagonal (with their variances in s_mat).
+#'
+#' The number of observations drawn is equal to \code{nrow(s_mat)}.
+#'
+#' @inheritParams dmixlike
+#'
+#' @author David Gerard
+#'
+#' @export
+#'
+#' @seealso dmixlike
+rmixmultnorm <- function(s_mat, v_mat, pi_vec) {
+  ## Check input -------------------------------------------------------------
+  assertthat::assert_that(is.matrix(v_mat))
+  assertthat::assert_that(is.matrix(s_mat))
+
+  R <- nrow(v_mat)
+  K <- ncol(v_mat)
+  N <- nrow(s_mat)
+
+  assertthat::are_equal(length(pi_vec), K)
+  assertthat::are_equal(ncol(s_mat), R)
+
+  x_mat <- matrix(NA, nrow = N, ncol = R)
+
+  for (index in 1:N) {
+    aj <- stats::rnorm(1)
+    zj <- sample(x = 1:K, prob = pi_vec, size = 1)
+    x_mat[index, ] <- stats::rnorm(n = R, mean = aj * v_mat[, zj], sd = sqrt(s_mat[index, ]))
+  }
+
+  return(x_mat)
 }

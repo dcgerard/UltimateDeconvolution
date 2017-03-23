@@ -6,7 +6,7 @@ test_that("Normal Density is Accurate", {
     set.seed(17)
     R <- 11
     x <- stats::rnorm(R)
-    s_diag <- stats::rchisq(R, df = 5)
+    s_diag <- stats::rchisq(R, df = 5) / 5
     v <- stats::rnorm(R)
     mu <- rep(0, length(x))
     log <- TRUE
@@ -35,7 +35,7 @@ test_that("dmixlike runs OK", {
     N <- 7
 
     x_mat <- matrix(stats::rnorm(N * R), nrow = N)
-    s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N)
+    s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N) / 5
     pi_vec <- stats::runif(K)
     pi_vec <- pi_vec / sum(pi_vec)
     v_mat <- matrix(stats::rnorm(R * K), nrow = R)
@@ -64,5 +64,42 @@ test_that("dmixlike runs OK", {
   } else {
     skip("mixAK not installed")
   }
+}
+)
+
+test_that("rmixmultnorm works", {
+  set.seed(3456)
+  K <- 1
+  R <- 11
+  N <- 10000
+  s_mat <- matrix(0.1 , nrow = N, ncol = R)
+  pi_vec <- stats::runif(K)
+  pi_vec <- pi_vec / sum(pi_vec)
+  v_mat <- matrix(stats::rnorm(R * K), nrow = R)
+
+  xout <- rmixmultnorm(s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
+
+  sample_cov <- crossprod(xout) / N
+
+  ## This should be small
+  expect_true(max(sample_cov - (tcrossprod(v_mat) + diag(0.1, nrow = R))) < 0.02)
+}
+)
+
+
+test_that("dr1_norm (R version) and dnorm_rank1 (C++ version) return same llike", {
+  set.seed(17)
+  R <- 11
+  x <- stats::rnorm(R)
+  s_diag <- stats::rchisq(R, df = 5) / 5
+  v <- stats::rnorm(R)
+  mu <- rep(0, length(x))
+  log <- TRUE
+
+  rllike <- dr1_norm(x = x, v = v, s_diag = s_diag,
+                     mu = mu, log = log)
+  cppllike <- dnorm_rank1(x = x, v = v, s_diag = s_diag, mu = mu, return_log = log)
+
+  expect_equal(rllike, cppllike)
 }
 )
