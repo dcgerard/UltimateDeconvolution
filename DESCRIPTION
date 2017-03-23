@@ -16,5 +16,7 @@ Suggests: testthat,
     mixAK
 RoxygenNote: 6.0.1
 Imports: assertthat,
-    Rcpp
-LinkingTo: Rcpp
+    Rcpp,
+    RcppArmadillo
+LinkingTo: Rcpp,
+    RcppArmadillo

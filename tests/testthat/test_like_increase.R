@@ -64,3 +64,23 @@ test_that("ultimate_deconvolution will run", {
                                   itermax = 10)
 }
 )
+
+test_that("em_fix_cpp and em_fix return same values", {
+  ## Generate fake data --------------------------------
+  set.seed(823)
+  K <- 3
+  R <- 11
+  N <- 7
+
+  x_mat <- matrix(stats::rnorm(N * R), nrow = N)
+  s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N)
+  pi_vec <- stats::runif(K)
+  pi_vec <- pi_vec / sum(pi_vec)
+  v_mat <- matrix(stats::rnorm(R * K), nrow = R)
+
+  r_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
+  cpp_fout <- em_fix_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
+
+  expect_equal(r_fout, cpp_fout)
+}
+)

@@ -45,3 +45,13 @@ dmixlike_cpp <- function(x_mat, s_mat, v_mat, pi_vec, return_log = FALSE) {
     .Call('UltimateDeconvolution_dmixlike_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, return_log)
 }
 
+#' Fixed point iteration from the EM algorithm.
+#'
+#' @inheritParams dmixlike
+#'
+#' @author David Gerard
+#'
+em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
+    .Call('UltimateDeconvolution_em_fix_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec)
+}
+

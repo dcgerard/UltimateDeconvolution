@@ -3,16 +3,6 @@
 #include <cassert>
 using namespace Rcpp;
 
-// This is a simple example of exporting a C++ function to R. You can
-// source this function into an R session using the Rcpp::sourceCpp
-// function (or via the Source button on the editor toolbar). Learn
-// more about Rcpp at:
-//
-//   http://www.rcpp.org/
-//   http://adv-r.had.co.nz/Rcpp.html
-//   http://gallery.rcpp.org/
-//
-
 //' Multivariate normal density at mean 0 and a covariance that is the sum
 //' of a rank-1 matrix and a diagonal matrix.
 //'
@@ -24,8 +14,8 @@ using namespace Rcpp;
 //' @export
 //'
 // [[Rcpp::export]]
-double dnorm_rank1(NumericVector x, NumericVector v, NumericVector s_diag,
-                   NumericVector mu, bool return_log = false) {
+double dnorm_rank1(const NumericVector& x, const NumericVector& v, const NumericVector& s_diag,
+                   const NumericVector& mu, bool return_log = false) {
   int R = x.size();
   double vsv = Rcpp::sum(v * v / s_diag);
   double xmusv = Rcpp::sum((x - mu) * v / s_diag);
@@ -52,8 +42,8 @@ double dnorm_rank1(NumericVector x, NumericVector v, NumericVector s_diag,
 //' @author David Gerard
 //'
 // [[Rcpp::export]]
-NumericMatrix get_llike_mat_cpp(NumericMatrix x_mat, NumericMatrix s_mat,
-                                NumericMatrix v_mat, NumericVector pi_vec) {
+NumericMatrix get_llike_mat_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
+                                const NumericMatrix& v_mat, const NumericVector& pi_vec) {
 
   // Check input -------------------------------------------------------------
   int R = x_mat.ncol();
@@ -99,9 +89,9 @@ NumericMatrix get_llike_mat_cpp(NumericMatrix x_mat, NumericMatrix s_mat,
 //' @author David Gerard
 //'
 // [[Rcpp::export]]
-double dmixlike_cpp(NumericMatrix x_mat, NumericMatrix s_mat,
-                    NumericMatrix v_mat, NumericVector pi_vec,
-                     bool return_log = false) {
+double dmixlike_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
+                    const NumericMatrix& v_mat, const NumericVector& pi_vec,
+                    bool return_log = false) {
 
   // Don't need to do assertions because those are done in get_llike_mat_cpp
   NumericMatrix llike_mat = get_llike_mat_cpp(x_mat, s_mat, v_mat, pi_vec);
