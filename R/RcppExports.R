@@ -28,3 +28,20 @@ get_llike_mat_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
     .Call('UltimateDeconvolution_get_llike_mat_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec)
 }
 
+#' Calculates the gaussian mixture density.
+#'
+#' This function assumes that the mixing means are all zeros and
+#' the mixing covariances are rank-1 matrices. Each observation
+#' has its own independent noise (variances collected in
+#' \code{s_mat}).
+#'
+#' @inheritParams dmixlike
+#' @param return_log A logical. Should we return the log-density
+#'     (\code{TRUE}) or not (\code{FALSE})?
+#'
+#' @author David Gerard
+#'
+dmixlike_cpp <- function(x_mat, s_mat, v_mat, pi_vec, return_log = FALSE) {
+    .Call('UltimateDeconvolution_dmixlike_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, return_log)
+}
+

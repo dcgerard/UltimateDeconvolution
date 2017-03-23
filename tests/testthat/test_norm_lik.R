@@ -125,5 +125,10 @@ test_that("get_llike_mat and get_llike_mat_cpp return same values", {
 
   expect_equal(r_llike, cpp_llike)
 
+  r_llike <- dmixlike(x_mat = x_mat, s_mat = s_mat, pi_vec = pi_vec,
+                      v_mat = v_mat, log = TRUE)
+  cpp_llike <- dmixlike_cpp(x_mat = x_mat, s_mat = s_mat, pi_vec = pi_vec,
+                            v_mat = v_mat, return_log = TRUE)
+  expect_equal(r_llike, cpp_llike)
 }
 )

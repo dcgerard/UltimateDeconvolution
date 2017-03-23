@@ -85,3 +85,40 @@ NumericMatrix get_llike_mat_cpp(NumericMatrix x_mat, NumericMatrix s_mat,
   return(llike_mat);
 }
 
+//' Calculates the gaussian mixture density.
+//'
+//' This function assumes that the mixing means are all zeros and
+//' the mixing covariances are rank-1 matrices. Each observation
+//' has its own independent noise (variances collected in
+//' \code{s_mat}).
+//'
+//' @inheritParams dmixlike
+//' @param return_log A logical. Should we return the log-density
+//'     (\code{TRUE}) or not (\code{FALSE})?
+//'
+//' @author David Gerard
+//'
+// [[Rcpp::export]]
+double dmixlike_cpp(NumericMatrix x_mat, NumericMatrix s_mat,
+                    NumericMatrix v_mat, NumericVector pi_vec,
+                     bool return_log = false) {
+
+  // Don't need to do assertions because those are done in get_llike_mat_cpp
+  NumericMatrix llike_mat = get_llike_mat_cpp(x_mat, s_mat, v_mat, pi_vec);
+
+  // Log-sum-exponential trick for each row, then sum.
+  int N = llike_mat.nrow();
+  double llike_tot = 0;
+  double max_element;
+  for (int obs_index = 0; obs_index < N; obs_index++) {
+    max_element = Rcpp::max(llike_mat(obs_index, _));
+    llike_tot = std::log(Rcpp::sum(Rcpp::exp(llike_mat(obs_index, _) - max_element))) +
+      max_element + llike_tot;
+  }
+
+  if (return_log) {
+    return llike_tot;
+  } else {
+    return std::exp(llike_tot);
+  }
+}

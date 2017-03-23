@@ -34,3 +34,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// dmixlike_cpp
+double dmixlike_cpp(NumericMatrix x_mat, NumericMatrix s_mat, NumericMatrix v_mat, NumericVector pi_vec, bool return_log);
+RcppExport SEXP UltimateDeconvolution_dmixlike_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP, SEXP return_logSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_mat(x_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type s_mat(s_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type v_mat(v_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type pi_vec(pi_vecSEXP);
+    Rcpp::traits::input_parameter< bool >::type return_log(return_logSEXP);
+    rcpp_result_gen = Rcpp::wrap(dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, return_log));
+    return rcpp_result_gen;
+END_RCPP
+}
