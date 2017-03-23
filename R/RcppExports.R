@@ -15,3 +15,16 @@ dnorm_rank1 <- function(x, v, s_diag, mu, return_log = FALSE) {
     .Call('UltimateDeconvolution_dnorm_rank1', PACKAGE = 'UltimateDeconvolution', x, v, s_diag, mu, return_log)
 }
 
+#' Get's a matrix of likeklihood values.
+#'
+#' Element (i, j) of the returned matrix is the log of
+#' pi_j N(x_i | 0, v_j v_j^T + S_i)
+#'
+#' @inheritParams dmixlike
+#'
+#' @author David Gerard
+#'
+get_llike_mat_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
+    .Call('UltimateDeconvolution_get_llike_mat_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec)
+}
+

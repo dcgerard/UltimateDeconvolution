@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include <math.h>
+#include <cassert>
 using namespace Rcpp;
 
 // This is a simple example of exporting a C++ function to R. You can
@@ -39,5 +40,48 @@ double dnorm_rank1(NumericVector x, NumericVector v, NumericVector s_diag,
   else {
     return std::exp(llike);
   }
+}
+
+//' Get's a matrix of likeklihood values.
+//'
+//' Element (i, j) of the returned matrix is the log of
+//' pi_j N(x_i | 0, v_j v_j^T + S_i)
+//'
+//' @inheritParams dmixlike
+//'
+//' @author David Gerard
+//'
+// [[Rcpp::export]]
+NumericMatrix get_llike_mat_cpp(NumericMatrix x_mat, NumericMatrix s_mat,
+                                NumericMatrix v_mat, NumericVector pi_vec) {
+
+  // Check input -------------------------------------------------------------
+  int R = x_mat.ncol();
+  int N = x_mat.nrow();
+  int K = v_mat.ncol();
+
+  assert(R == s_mat.ncol());
+  assert(N == s_mat.nrow());
+  assert(K == pi_vec.siz());
+  assert(R == v_mat.nrow());
+  assert(std::abs(Rcpp::sum(pi_vec) - 1) < 10 ^ -10);
+
+  NumericMatrix llike_mat(N, K);
+
+  NumericVector mu(R); // All zeros
+
+  double llike;
+
+  NumericVector lpi = Rcpp::log(pi_vec);
+
+  for (int obs_index = 0; obs_index < N; obs_index++) {
+    for (int mix_index = 0; mix_index < K; mix_index++) {
+      llike = dnorm_rank1(x_mat(obs_index, _), v_mat(_, mix_index),
+                          s_mat(obs_index, _), mu, true);
+      llike_mat(obs_index, mix_index) = llike + lpi(mix_index);
+    }
+  }
+
+  return(llike_mat);
 }
 

@@ -103,3 +103,27 @@ test_that("dr1_norm (R version) and dnorm_rank1 (C++ version) return same llike"
   expect_equal(rllike, cppllike)
 }
 )
+
+
+test_that("get_llike_mat and get_llike_mat_cpp return same values", {
+  set.seed(45)
+  K <- 3
+  R <- 11
+  N <- 7
+
+  x_mat <- matrix(stats::rnorm(N * R), nrow = N)
+  s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N) / 5
+  pi_vec <- stats::runif(K)
+  pi_vec <- pi_vec / sum(pi_vec)
+  v_mat <- matrix(stats::rnorm(R * K), nrow = R)
+
+  r_llike <- get_llike_mat(x_mat = x_mat, s_mat = s_mat, pi_vec = pi_vec,
+                           v_mat = v_mat)
+
+  cpp_llike <- get_llike_mat_cpp(x_mat = x_mat, s_mat = s_mat, pi_vec = pi_vec,
+                                 v_mat = v_mat)
+
+  expect_equal(r_llike, cpp_llike)
+
+}
+)

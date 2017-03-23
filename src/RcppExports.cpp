@@ -20,3 +20,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_llike_mat_cpp
+NumericMatrix get_llike_mat_cpp(NumericMatrix x_mat, NumericMatrix s_mat, NumericMatrix v_mat, NumericVector pi_vec);
+RcppExport SEXP UltimateDeconvolution_get_llike_mat_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type x_mat(x_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type s_mat(s_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type v_mat(v_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type pi_vec(pi_vecSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_llike_mat_cpp(x_mat, s_mat, v_mat, pi_vec));
+    return rcpp_result_gen;
+END_RCPP
+}
