@@ -38,6 +38,8 @@ List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   NumericVector pi_new = Rcpp::colSums(w_mat);
   pi_new = pi_new / Rcpp::sum(pi_new);
 
+  Rcpp::Rcout << pi_new << std::endl;
+
   // Get theta and eta matrices
   arma::mat theta_mat(N, K);
   arma::mat eta_mat(N, K);
@@ -61,10 +63,10 @@ List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   }
 
   // Update v_mat
-  arma::mat s_arma = as<arma::mat>(1 / s_mat);
-  arma::mat x_arma = as<arma::mat>(x_mat);
-  arma::mat lincom_s = 1 / (eta_mat.t() * s_arma);
-  arma::mat lincom_xs = theta_mat.t() * (x_arma % s_arma);
+  arma::mat s_arma = as<arma::mat>(s_mat); // NB: s_arma points to same space in memory as s_mat
+  arma::mat x_arma = as<arma::mat>(x_mat); // NB: x_arma points to same space in memory as x_mat
+  arma::mat lincom_s = 1 / (eta_mat.t() * (1 / s_arma));
+  arma::mat lincom_xs = theta_mat.t() * (x_arma / s_arma);
   arma::mat v_new = (lincom_s % lincom_xs).t();
 
   return List::create(_["pi_vec"] = pi_new, _["v_mat"] = v_new);

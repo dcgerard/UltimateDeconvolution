@@ -58,7 +58,7 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
 
     llike_old <- llike_current
 
-    fout <- em_fix(x_mat = x_mat,
+    fout <- em_fix_cpp(x_mat = x_mat,
                        s_mat = s_mat,
                        v_mat = v_mat,
                        pi_vec = pi_vec)
@@ -148,6 +148,8 @@ em_fix <- function(x_mat, s_mat, v_mat, pi_vec) {
   ## Update the mixing proportions ------------------------------
   pi_new <- colSums(wmat)
   pi_new <- pi_new / sum(pi_new)
+
+  cat(pi_new, "\n")
 
   ## Update the rank-1 matrices ---------------------------------
   lincom_s <- 1 / crossprod(eta_mat, 1 / s_mat)

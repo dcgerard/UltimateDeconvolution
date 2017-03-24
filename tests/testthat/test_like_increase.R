@@ -83,45 +83,12 @@ test_that("em_fix_cpp and em_fix return same values", {
   pi_r <- list()
   for (index in 1:5) {
     r_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
+    cpp_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
     v_mat <- r_fout$v_mat
     pi_vec <- r_fout$pi_vec
 
-    llike <- dmixlike_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
-                          return_log = TRUE)
-    cat(v_mat[1,1], " and ", llike, "\n")
-    v_r[[index]] <- v_mat
-    pi_r[[index]] <- pi_vec
+    expect_equal(r_fout, cpp_fout)
   }
-
-
-  set.seed(823)
-  K <- 3
-  R <- 11
-  N <- 7
-
-  x_mat <- matrix(stats::rnorm(N * R), nrow = N)
-  s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N)
-  pi_vec <- stats::runif(K)
-  pi_vec <- pi_vec / sum(pi_vec)
-  v_mat <- matrix(stats::rnorm(R * K), nrow = R)
-
-  v_cpp <- list()
-  pi_cpp <- list()
-  for (index in 1:5) {
-    cpp_fout <- em_fix_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
-    v_mat <- cpp_fout$v_mat
-    pi_vec <- cpp_fout$pi_vec
-
-    llike <- dmixlike_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
-                          return_log = TRUE)
-    cat(v_mat[1,1], " and ", llike, "\n")
-    v_cpp[[index]] <- v_mat
-    pi_cpp[[index]] <- pi_vec
-  }
-
-  pi_r
-  pi_cpp
-
 }
 )
 
