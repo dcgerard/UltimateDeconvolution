@@ -18,7 +18,6 @@ List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
                 const NumericMatrix& v_mat, const NumericVector& pi_vec) {
 
   int N = x_mat.nrow();
-  int R = x_mat.ncol();
   int K = v_mat.ncol();
 
   // Get W matrix (the element-specific mixing proportions)
