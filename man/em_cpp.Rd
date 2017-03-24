@@ -35,12 +35,17 @@ A list of the following elements:
     \code{pi_vec}: The final estimate of the mixing proportions.
 
     \code{v_mat}: The final estimate of the square roots of the rank-1 covariance matrices.
+        These are the factors.
 
     \code{llike_vec}: The vector of log-likelihoods. Should be increasing.
 
     \code{convergence}: A value of \code{0} indicates convergence. A value of \code{1} indicates that
         the limit \code{itermax} has been reached. A vlue of \code{2} indicates that the user
         interupted the optimization.
+
+    \code{loadings}: An estimate for the loadings.
+
+    \code{w_mat}: An estimate for the probability of being in a group.
 }
 \description{
 C++ version of EM algorithm.

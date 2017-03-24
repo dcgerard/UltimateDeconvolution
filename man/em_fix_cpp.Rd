@@ -4,7 +4,7 @@
 \alias{em_fix_cpp}
 \title{Fixed point iteration from the EM algorithm.}
 \usage{
-em_fix_cpp(x_mat, s_mat, v_mat, pi_vec)
+em_fix_cpp(x_mat, s_mat, v_mat, pi_vec, w_mat, theta_mat, eta_mat)
 }
 \arguments{
 \item{x_mat}{A matrix of data. The rows index the observations and
@@ -19,6 +19,12 @@ covariance matrices. The columns index the mixing
 components, the rows index the variables.}
 
 \item{pi_vec}{A vector of mixture proportions.}
+
+\item{w_mat}{The individual probabilities of being in a particular group.}
+
+\item{theta_mat}{The means of the a_j's given in group k times w_kj's}
+
+\item{eta_mat}{The second (non-central) moment of the a_j's given in group k times the w_kj's}
 }
 \description{
 Note that I am changing v_mat and pi_vec by reference, but also returning them in the list.

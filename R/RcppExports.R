@@ -50,11 +50,14 @@ dmixlike_cpp <- function(x_mat, s_mat, v_mat, pi_vec, return_log = FALSE) {
 #' Note that I am changing v_mat and pi_vec by reference, but also returning them in the list.
 #'
 #' @inheritParams dmixlike
+#' @param w_mat The individual probabilities of being in a particular group.
+#' @param theta_mat The means of the a_j's given in group k times w_kj's
+#' @param eta_mat The second (non-central) moment of the a_j's given in group k times the w_kj's
 #'
 #' @author David Gerard
 #'
-em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
-    invisible(.Call('UltimateDeconvolution_em_fix_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec))
+em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec, w_mat, theta_mat, eta_mat) {
+    invisible(.Call('UltimateDeconvolution_em_fix_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, w_mat, theta_mat, eta_mat))
 }
 
 #' C++ version of EM algorithm.
@@ -67,12 +70,17 @@ em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
 #'     \code{pi_vec}: The final estimate of the mixing proportions.
 #'
 #'     \code{v_mat}: The final estimate of the square roots of the rank-1 covariance matrices.
+#'         These are the factors.
 #'
 #'     \code{llike_vec}: The vector of log-likelihoods. Should be increasing.
 #'
 #'     \code{convergence}: A value of \code{0} indicates convergence. A value of \code{1} indicates that
 #'         the limit \code{itermax} has been reached. A vlue of \code{2} indicates that the user
 #'         interupted the optimization.
+#'
+#'     \code{loadings}: An estimate for the loadings.
+#'
+#'     \code{w_mat}: An estimate for the probability of being in a group.
 #'
 #' @author David Gerard
 #'

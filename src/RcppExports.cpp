@@ -51,15 +51,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // em_fix_cpp
-void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, NumericMatrix& v_mat, NumericVector& pi_vec);
-RcppExport SEXP UltimateDeconvolution_em_fix_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP) {
+void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, NumericMatrix& v_mat, NumericVector& pi_vec, NumericMatrix& w_mat, arma::mat& theta_mat, arma::mat& eta_mat);
+RcppExport SEXP UltimateDeconvolution_em_fix_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP, SEXP w_matSEXP, SEXP theta_matSEXP, SEXP eta_matSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type x_mat(x_matSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type s_mat(s_matSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type v_mat(v_matSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type pi_vec(pi_vecSEXP);
-    em_fix_cpp(x_mat, s_mat, v_mat, pi_vec);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type w_mat(w_matSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type theta_mat(theta_matSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type eta_mat(eta_matSEXP);
+    em_fix_cpp(x_mat, s_mat, v_mat, pi_vec, w_mat, theta_mat, eta_mat);
     return R_NilValue;
 END_RCPP
 }

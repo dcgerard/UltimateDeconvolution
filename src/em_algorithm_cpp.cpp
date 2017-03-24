@@ -20,12 +20,17 @@ double dmixlike_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //' Note that I am changing v_mat and pi_vec by reference, but also returning them in the list.
 //'
 //' @inheritParams dmixlike
+//' @param w_mat The individual probabilities of being in a particular group.
+//' @param theta_mat The means of the a_j's given in group k times w_kj's
+//' @param eta_mat The second (non-central) moment of the a_j's given in group k times the w_kj's
 //'
 //' @author David Gerard
 //'
 // [[Rcpp::export]]
 void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
-                NumericMatrix& v_mat, NumericVector& pi_vec) {
+                NumericMatrix& v_mat, NumericVector& pi_vec,
+                NumericMatrix& w_mat, arma::mat& theta_mat,
+                arma::mat& eta_mat) {
 
   int N = x_mat.nrow();
   int K = v_mat.ncol();
@@ -33,7 +38,7 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   // Get W matrix (the element-specific mixing proportions)
   NumericMatrix llike_mat = get_llike_mat_cpp(x_mat, s_mat, v_mat, pi_vec);
 
-  NumericMatrix w_mat(N, K);
+
   double max_element;
   double ldenom;
 
@@ -48,8 +53,6 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   pi_vec = pi_vec / Rcpp::sum(pi_vec);
 
   // Get theta and eta matrices
-  arma::mat theta_mat(N, K);
-  arma::mat eta_mat(N, K);
   double sigma2_kj;
   double mu_kj;
   double vsv;
@@ -90,12 +93,17 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //'     \code{pi_vec}: The final estimate of the mixing proportions.
 //'
 //'     \code{v_mat}: The final estimate of the square roots of the rank-1 covariance matrices.
+//'         These are the factors.
 //'
 //'     \code{llike_vec}: The vector of log-likelihoods. Should be increasing.
 //'
 //'     \code{convergence}: A value of \code{0} indicates convergence. A value of \code{1} indicates that
 //'         the limit \code{itermax} has been reached. A vlue of \code{2} indicates that the user
 //'         interupted the optimization.
+//'
+//'     \code{loadings}: An estimate for the loadings.
+//'
+//'     \code{w_mat}: An estimate for the probability of being in a group.
 //'
 //' @author David Gerard
 //'
@@ -111,12 +119,20 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   double llike_current = dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, true);
   int convergence;
 
+  int N = x_mat.nrow();
+  int R = x_mat.ncol();
+  int K = pi_vec.size();
+
   int iterindex = 0;
   double err = tol + 1.0;
   double llike_old;
   std::vector<double> llike_vec;
   llike_vec.reserve(itermax); // set aside at least itermax space for llike_vec
   llike_vec.push_back(llike_current);
+
+  NumericMatrix w_mat(N, K); // The individual probabilities of being in a mixture (full of zeros to start).
+  arma::mat theta_mat(N, K);
+  arma::mat eta_mat(N, K);
 
   double tol_like_increase = -1.0e-12;
 
@@ -135,7 +151,7 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 
     // Make updates ------------------------------------------------------
     llike_old = llike_current;
-    em_fix_cpp(x_mat, s_mat, v_mat, pi_vec);
+    em_fix_cpp(x_mat, s_mat, v_mat, pi_vec, w_mat, theta_mat, eta_mat);
     llike_current = dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, true);
 
     // Check llike increases ---------------------------------------------
@@ -154,8 +170,12 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
     convergence = 0;
   }
 
+  // Get an estimate for the loadings
+  arma::mat w_arma = as<arma::mat>(w_mat);
+  arma::mat mu_mat = theta_mat / w_arma;
 
   return List::create(_["pi_vec"] = pi_vec, _["v_mat"] = v_mat, _["llike_vec"] = llike_vec,
+                      _["loadings"] = mu_mat, _["w_mat"] = w_mat,
                       _["convergence"] = convergence);
 }
 
