@@ -3,6 +3,8 @@
 export(dmixlike)
 export(dnorm_rank1)
 export(dr1_norm)
+export(em_cpp)
+export(em_r)
 export(rmixmultnorm)
 export(ultimate_deconvolution)
 importFrom(Rcpp,sourceCpp)

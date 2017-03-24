@@ -68,7 +68,7 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
 #'
 #' @author David Gerard
 #'
-#'
+#' @export
 em_r <- function(x_mat, s_mat, v_mat, pi_vec,
                  itermax = 500, tol = 10 ^ -5,
                  plot_iter = FALSE) {

@@ -64,6 +64,8 @@ em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
 #'
 #' @author David Gerard
 #'
+#' @export
+#'
 em_cpp <- function(x_mat, s_mat, v_mat, pi_vec, itermax = 500L, tol = 10 ^ -5, plot_iter = FALSE) {
     .Call('UltimateDeconvolution_em_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, itermax, tol, plot_iter)
 }

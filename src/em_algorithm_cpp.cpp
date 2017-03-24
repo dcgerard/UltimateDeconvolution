@@ -85,6 +85,8 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //'
 //' @author David Gerard
 //'
+//' @export
+//'
 // [[Rcpp::export]]
 List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
             NumericMatrix& v_mat, NumericVector& pi_vec,
