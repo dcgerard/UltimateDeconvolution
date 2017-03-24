@@ -1,8 +1,10 @@
 #include <RcppArmadillo.h>
 #include <Rcpp.h>
 #include <math.h>
+#include <progress.hpp>
 using namespace Rcpp;
 using namespace arma;
+// [[Rcpp::depends(RcppProgress)]]
 
 // Declare needed functions --------------------------------------------------
 NumericMatrix get_llike_mat_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
@@ -82,6 +84,20 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //'
 //' @inheritParams ultimate_deconvolution
 //' @param plot_iter A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?
+//' @param plot_fn The plotting function to pass to \code{em_cpp}.
+//'      See \code{\link{plot_llike}}.
+//'
+//' @return A list of the following elements:
+//'
+//'     \code{pi_vec}: The final estimate of the mixing proportions.
+//'
+//'     \code{v_mat}: The final estimate of the square roots of the rank-1 covariance matrices.
+//'
+//'     \code{llike_vec}: The vector of log-likelihoods. Should be increasing.
+//'
+//'     \code{convergence}: A value of \code{0} indicates convergence. A value of \code{1} indicates that
+//'         the limit \code{itermax} has been reached. A vlue of \code{2} indicates that the user
+//'         interupted the optimization.
 //'
 //' @author David Gerard
 //'
@@ -89,12 +105,13 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //'
 // [[Rcpp::export]]
 List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
-            NumericMatrix& v_mat, NumericVector& pi_vec,
+            NumericMatrix& v_mat, NumericVector& pi_vec, Function plot_fn,
             int itermax = 500, double tol = 10 ^ -5,
             bool plot_iter = false) {
 
   // Starting log-likelihood
   double llike_current = dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, true);
+  int convergence;
 
   int iterindex = 0;
   double err = tol + 1.0;
@@ -105,12 +122,31 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 
   double tol_like_increase = -1.0e-12;
 
+  // Progress and plotting pre-processing --------------------------------
+  Progress p(itermax, plot_iter);
+  int base_int = std::floor(itermax / 20); // plot only twenty times
+
   while (iterindex < itermax && err > tol) {
+
+    // Check progress interupt -------------------------------------------
+    p.increment(); // update progress
+    if (Progress::check_abort()) {
+      convergence = 2;
+      return List::create(_["pi_vec"] = pi_vec, _["v_mat"] = v_mat,
+                          _["llike_vec"] = llike_vec, _["convergence"] = convergence);
+    }
+
+    // Plot likelihood if desired ----------------------------------------
+    if (plot_iter && iterindex % base_int == 0) {
+      plot_fn(llike_vec, itermax);
+    }
+
+    // Make updates ------------------------------------------------------
     llike_old = llike_current;
     em_fix_cpp(x_mat, s_mat, v_mat, pi_vec);
     llike_current = dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, true);
 
-    // Check llike increases
+    // Check llike increases ---------------------------------------------
     if (llike_current - llike_old < tol_like_increase) {
       throw std::domain_error("Likelihood did not increase.");
     }
@@ -120,7 +156,15 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
     iterindex++;
   }
 
-  return List::create(_["pi_vec"] = pi_vec, _["v_mat"] = v_mat, _["llike_vec"] = llike_vec);
+  if (iterindex == itermax) {
+    convergence = 1;
+  } else {
+    convergence = 0;
+  }
+
+
+  return List::create(_["pi_vec"] = pi_vec, _["v_mat"] = v_mat, _["llike_vec"] = llike_vec,
+                      _["convergence"] = convergence);
 }
 
 

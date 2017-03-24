@@ -59,9 +59,12 @@ test_that("ultimate_deconvolution will run", {
 
   rout <- em_r(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec, itermax = 10)
 
-  cppout <- em_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec, itermax = 10)
+  cppout <- em_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
+                   plot_fn = plot_llike, itermax = 10)
 
-  expect_equal(rout, cppout)
+  expect_equal(rout[[1]], cppout[[1]])
+  expect_equal(rout[[2]], cppout[[2]])
+  expect_equal(rout[[3]], cppout[[3]])
 }
 )
 

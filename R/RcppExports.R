@@ -61,12 +61,26 @@ em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
 #'
 #' @inheritParams ultimate_deconvolution
 #' @param plot_iter A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?
+#' @param plot_fn The plotting function to pass to \code{em_cpp}.
+#'      See \code{\link{plot_llike}}.
+#'
+#' @return A list of the following elements:
+#'
+#'     \code{pi_vec}: The final estimate of the mixing proportions.
+#'
+#'     \code{v_mat}: The final estimate of the square roots of the rank-1 covariance matrices.
+#'
+#'     \code{llike_vec}: The vector of log-likelihoods. Should be increasing.
+#'
+#'     \code{convergence}: A value of \code{0} indicates convergence. A value of \code{1} indicates that
+#'         the limit \code{itermax} has been reached. A vlue of \code{2} indicates that the user
+#'         interupted the optimization.
 #'
 #' @author David Gerard
 #'
 #' @export
 #'
-em_cpp <- function(x_mat, s_mat, v_mat, pi_vec, itermax = 500L, tol = 10 ^ -5, plot_iter = FALSE) {
-    .Call('UltimateDeconvolution_em_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, itermax, tol, plot_iter)
+em_cpp <- function(x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax = 500L, tol = 10 ^ -5, plot_iter = FALSE) {
+    .Call('UltimateDeconvolution_em_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax, tol, plot_iter)
 }
 

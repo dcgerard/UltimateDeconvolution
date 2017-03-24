@@ -4,7 +4,7 @@
 \alias{em_cpp}
 \title{C++ version of EM algorithm.}
 \usage{
-em_cpp(x_mat, s_mat, v_mat, pi_vec, itermax = 500L, tol = 10^-5,
+em_cpp(x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax = 500L, tol = 10^-5,
   plot_iter = FALSE)
 }
 \arguments{
@@ -20,6 +20,9 @@ covariances.}
 
 \item{pi_vec}{A vector of initial values of the mixing proportions.}
 
+\item{plot_fn}{The plotting function to pass to \code{em_cpp}.
+See \code{\link{plot_llike}}.}
+
 \item{itermax}{The maximum number of fixed-point iterations for
 the EM to run.}
 
@@ -28,6 +31,19 @@ stopping criterion is the ratio of successive
 likelihoods minus 1.}
 
 \item{plot_iter}{A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?}
+}
+\value{
+A list of the following elements:
+
+    \code{pi_vec}: The final estimate of the mixing proportions.
+
+    \code{v_mat}: The final estimate of the square roots of the rank-1 covariance matrices.
+
+    \code{llike_vec}: The vector of log-likelihoods. Should be increasing.
+
+    \code{convergence}: A value of \code{0} indicates convergence. A value of \code{1} indicates that
+        the limit \code{itermax} has been reached. A vlue of \code{2} indicates that the user
+        interupted the optimization.
 }
 \description{
 C++ version of EM algorithm.

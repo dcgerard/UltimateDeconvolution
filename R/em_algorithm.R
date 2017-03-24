@@ -50,6 +50,7 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
   ## Run EM ------------------------------------------------------------------
   if (code == "cpp") {
     emout <- em_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
+                    plot_fn = plot_llike,
                     itermax = itermax, tol = tol, plot_iter = plot_iter)
   } else if (code == "r") {
     emout <- em_r(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
