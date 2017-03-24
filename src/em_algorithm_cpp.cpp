@@ -1,21 +1,29 @@
 #include <RcppArmadillo.h>
 #include <Rcpp.h>
+#include <math.h>
 using namespace Rcpp;
 using namespace arma;
 
-// Declare needed functions
+// Declare needed functions --------------------------------------------------
 NumericMatrix get_llike_mat_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
                                 const NumericMatrix& v_mat, const NumericVector& pi_vec);
+double dmixlike_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
+                    const NumericMatrix& v_mat, const NumericVector& pi_vec,
+                    bool return_log = false);
+
+// End Declariations ---------------------------------------------------------
 
 //' Fixed point iteration from the EM algorithm.
+//'
+//' Note that I am changing v_mat and pi_vec by reference, but also returning them in the list.
 //'
 //' @inheritParams dmixlike
 //'
 //' @author David Gerard
 //'
 // [[Rcpp::export]]
-List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
-                const NumericMatrix& v_mat, const NumericVector& pi_vec) {
+void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
+                NumericMatrix& v_mat, NumericVector& pi_vec) {
 
   int N = x_mat.nrow();
   int K = v_mat.ncol();
@@ -34,10 +42,8 @@ List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   }
 
   // Update the pi-values ----------------------------------------
-  NumericVector pi_new = Rcpp::colSums(w_mat);
-  pi_new = pi_new / Rcpp::sum(pi_new);
-
-  Rcpp::Rcout << pi_new << std::endl;
+  pi_vec = Rcpp::colSums(w_mat);
+  pi_vec = pi_vec / Rcpp::sum(pi_vec);
 
   // Get theta and eta matrices
   arma::mat theta_mat(N, K);
@@ -66,12 +72,54 @@ List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
   arma::mat x_arma = as<arma::mat>(x_mat); // NB: x_arma points to same space in memory as x_mat
   arma::mat lincom_s = 1 / (eta_mat.t() * (1 / s_arma));
   arma::mat lincom_xs = theta_mat.t() * (x_arma / s_arma);
-  arma::mat v_new = (lincom_s % lincom_xs).t();
+  v_mat = Rcpp::wrap((lincom_s % lincom_xs).t());
 
-  return List::create(_["pi_vec"] = pi_new, _["v_mat"] = v_new);
+  return;
 }
 
 
+//' C++ version of EM algorithm.
+//'
+//' @inheritParams ultimate_deconvolution
+//' @param plot_iter A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?
+//'
+//' @author David Gerard
+//'
+// [[Rcpp::export]]
+List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
+            NumericMatrix& v_mat, NumericVector& pi_vec,
+            int itermax = 500, double tol = 10 ^ -5,
+            bool plot_iter = false) {
+
+  // Starting log-likelihood
+  double llike_current = dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, true);
+
+  int iterindex = 0;
+  double err = tol + 1.0;
+  double llike_old;
+  std::vector<double> llike_vec;
+  llike_vec.reserve(itermax); // set aside at least itermax space for llike_vec
+  llike_vec.push_back(llike_current);
+
+  double tol_like_increase = -1.0e-12;
+
+  while (iterindex < itermax && err > tol) {
+    llike_old = llike_current;
+    em_fix_cpp(x_mat, s_mat, v_mat, pi_vec);
+    llike_current = dmixlike_cpp(x_mat, s_mat, v_mat, pi_vec, true);
+
+    // Check llike increases
+    if (llike_current - llike_old < tol_like_increase) {
+      throw std::domain_error("Likelihood did not increase.");
+    }
+
+    err = std::abs(std::exp(llike_current - llike_old) - 1);
+    llike_vec.push_back(llike_current);
+    iterindex++;
+  }
+
+  return List::create(_["pi_vec"] = pi_vec, _["v_mat"] = v_mat, _["llike_vec"] = llike_vec);
+}
 
 
 

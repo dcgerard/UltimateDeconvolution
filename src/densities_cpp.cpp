@@ -1,6 +1,5 @@
 #include <Rcpp.h>
 #include <math.h>
-#include <cassert>
 using namespace Rcpp;
 
 //' Multivariate normal density at mean 0 and a covariance that is the sum
@@ -50,11 +49,23 @@ NumericMatrix get_llike_mat_cpp(const NumericMatrix& x_mat, const NumericMatrix&
   int N = x_mat.nrow();
   int K = v_mat.ncol();
 
-  assert(R == s_mat.ncol());
-  assert(N == s_mat.nrow());
-  assert(K == pi_vec.siz());
-  assert(R == v_mat.nrow());
-  assert(std::abs(Rcpp::sum(pi_vec) - 1) < 10 ^ -10);
+  if (R != s_mat.ncol()) {
+    throw std::invalid_argument("x_mat.ncol() should equal s_mat.ncol()");
+  }
+  if (N != s_mat.nrow()) {
+    throw std::invalid_argument("x_mat.nrow() should equal s_mat.nrow()");
+  }
+  if (K != pi_vec.size()) {
+    throw std::invalid_argument("pi_vec.size() should equal v_mat.ncol()");
+  }
+  if (R != v_mat.nrow()) {
+    throw std::invalid_argument("v_mat.nrow() should equal x_mat.ncol()");
+  }
+  if (std::abs(Rcpp::sum(pi_vec) - 1) > 1.0e-10) {
+    throw std::invalid_argument("pi_vec should sum to 1");
+  }
+
+  // End checking input ------------------------------------------------------
 
   NumericMatrix llike_mat(N, K);
 

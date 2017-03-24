@@ -15,8 +15,9 @@
 #' @param tol The tolerance for the stopping criterion. The current
 #'     stopping criterion is the ratio of successive
 #'     likelihoods minus 1.
-#' @param print_iter A logical. Should we print the likelihood at
+#' @param plot_iter A logical. Should we plot the likelihood at
 #'     each step (\code{TRUE}) or not (\code{FALSE})?
+#' @param code Should we use the C++ code (\code{"cpp"}) or the R code (\code{"R"})?
 #'
 #' @author David Gerard
 #'
@@ -24,13 +25,13 @@
 #'
 ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
                                    itermax = 500, tol = 10 ^ -5,
-                                   print_iter = FALSE) {
+                                   plot_iter = FALSE, code = c("cpp", "R")) {
 
-  ## Test input -------------------------------------------
+  ## Test input --------------------------------------------------------------
   assertthat::assert_that(is.matrix(x_mat))
   assertthat::assert_that(is.matrix(v_mat))
   assertthat::assert_that(is.matrix(s_mat))
-  assertthat::assert_that(is.logical(print_iter))
+  assertthat::assert_that(is.logical(plot_iter))
   assertthat::assert_that(tol >= 0)
   assertthat::assert_that(itermax >= 1)
 
@@ -44,11 +45,38 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
   assertthat::are_equal(K, length(pi_vec))
   assertthat::assert_that(abs(sum(pi_vec) - 1) < 10 ^ -12)
 
-  llike_current <- dmixlike_cpp(x_mat = x_mat,
-                                s_mat = s_mat,
-                                v_mat = v_mat,
-                                pi_vec = pi_vec,
-                                return_log = TRUE)
+  code <- match.arg(code)
+
+  ## Run EM ------------------------------------------------------------------
+  if (code == "cpp") {
+    emout <- em_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
+                    itermax = itermax, tol = tol, plot_iter = plot_iter)
+  } else if (code == "r") {
+    emout <- em_r(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec,
+                  itermax = itermax, tol = tol, plot_iter = plot_iter)
+  } else {
+    stop("code must be in c('cpp', 'r')")
+  }
+
+
+  return(emout)
+}
+
+#' R version of the EM algorithm.
+#'
+#' @inheritParams ultimate_deconvolution
+#'
+#' @author David Gerard
+#'
+#'
+em_r <- function(x_mat, s_mat, v_mat, pi_vec,
+                 itermax = 500, tol = 10 ^ -5,
+                 plot_iter = FALSE) {
+  llike_current <- dmixlike(x_mat = x_mat,
+                            s_mat = s_mat,
+                            v_mat = v_mat,
+                            pi_vec = pi_vec,
+                            log = TRUE)
 
   iterindex <- 1
   err <- tol + 1
@@ -58,19 +86,19 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
 
     llike_old <- llike_current
 
-    fout <- em_fix_cpp(x_mat = x_mat,
-                       s_mat = s_mat,
-                       v_mat = v_mat,
-                       pi_vec = pi_vec)
+    fout <- em_fix(x_mat = x_mat,
+                   s_mat = s_mat,
+                   v_mat = v_mat,
+                   pi_vec = pi_vec)
 
     v_mat <- fout$v_mat
     pi_vec <- fout$pi_vec
 
-    llike_current <- dmixlike_cpp(x_mat = x_mat,
-                                  s_mat = s_mat,
-                                  v_mat = v_mat,
-                                  pi_vec = pi_vec,
-                                  return_log = TRUE)
+    llike_current <- dmixlike(x_mat = x_mat,
+                              s_mat = s_mat,
+                              v_mat = v_mat,
+                              pi_vec = pi_vec,
+                              log = TRUE)
 
     llike_vec <- c(llike_vec, llike_current)
     ## Make sure likelihood increases (within some tolerance)
@@ -80,7 +108,6 @@ ultimate_deconvolution <- function(x_mat, s_mat, v_mat, pi_vec,
 
     iterindex <- iterindex + 1
   }
-
   return(list(pi_vec = pi_vec, v_mat = v_mat, llike_vec = llike_vec))
 }
 
@@ -148,8 +175,6 @@ em_fix <- function(x_mat, s_mat, v_mat, pi_vec) {
   ## Update the mixing proportions ------------------------------
   pi_new <- colSums(wmat)
   pi_new <- pi_new / sum(pi_new)
-
-  cat(pi_new, "\n")
 
   ## Update the rank-1 matrices ---------------------------------
   lincom_s <- 1 / crossprod(eta_mat, 1 / s_mat)

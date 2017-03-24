@@ -21,7 +21,7 @@ components, the rows index the variables.}
 \item{pi_vec}{A vector of mixture proportions.}
 }
 \description{
-Fixed point iteration from the EM algorithm.
+Note that I am changing v_mat and pi_vec by reference, but also returning them in the list.
 }
 \author{
 David Gerard

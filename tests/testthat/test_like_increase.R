@@ -57,38 +57,37 @@ test_that("ultimate_deconvolution will run", {
   pi_vec <- pi_vec / sum(pi_vec)
   v_mat <- matrix(stats::rnorm(R * K), nrow = R)
 
-  udout <- ultimate_deconvolution(x_mat = x_mat,
-                                  s_mat = s_mat,
-                                  v_mat = v_mat,
-                                  pi_vec = pi_vec,
-                                  itermax = 10)
+  rout <- em_r(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec, itermax = 10)
+
+  cppout <- em_cpp(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec, itermax = 10)
+
+  expect_equal(rout, cppout)
 }
 )
 
-test_that("em_fix_cpp and em_fix return same values", {
-  ## Generate fake data --------------------------------
-  set.seed(823)
-  K <- 3
-  R <- 11
-  N <- 7
-
-  x_mat <- matrix(stats::rnorm(N * R), nrow = N)
-  s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N)
-  pi_vec <- stats::runif(K)
-  pi_vec <- pi_vec / sum(pi_vec)
-  v_mat <- matrix(stats::rnorm(R * K), nrow = R)
-
-  ##for (index in 1:100) {
-  v_r <- list()
-  pi_r <- list()
-  for (index in 1:5) {
-    r_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
-    cpp_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
-    v_mat <- r_fout$v_mat
-    pi_vec <- r_fout$pi_vec
-
-    expect_equal(r_fout, cpp_fout)
-  }
-}
-)
+# test_that("em_fix_cpp and em_fix return same values", {
+#   ## Generate fake data --------------------------------
+#   set.seed(823)
+#   K <- 3
+#   R <- 11
+#   N <- 7
+#
+#   x_mat <- matrix(stats::rnorm(N * R), nrow = N)
+#   s_mat <- matrix(stats::rchisq(N * R, df = 5), nrow = N)
+#   pi_vec <- stats::runif(K)
+#   pi_vec <- pi_vec / sum(pi_vec)
+#   v_mat <- matrix(stats::rnorm(R * K), nrow = R)
+#
+#   for (index in 1:5) {
+#     r_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
+#     v_r <- r_fout$v_mat
+#     pi_r <- r_fout$pi_vec
+#     cpp_fout <- em_fix(x_mat = x_mat, s_mat = s_mat, v_mat = v_mat, pi_vec = pi_vec)
+#     v_r
+#     v_mat
+#
+#     expect_equal(r_fout, cpp_fout)
+#   }
+# }
+# )
 

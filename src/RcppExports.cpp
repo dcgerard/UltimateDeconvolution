@@ -51,16 +51,32 @@ BEGIN_RCPP
 END_RCPP
 }
 // em_fix_cpp
-List em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, const NumericMatrix& v_mat, const NumericVector& pi_vec);
+void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, NumericMatrix& v_mat, NumericVector& pi_vec);
 RcppExport SEXP UltimateDeconvolution_em_fix_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type x_mat(x_matSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type s_mat(s_matSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix& >::type v_mat(v_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type pi_vec(pi_vecSEXP);
+    em_fix_cpp(x_mat, s_mat, v_mat, pi_vec);
+    return R_NilValue;
+END_RCPP
+}
+// em_cpp
+List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, NumericMatrix& v_mat, NumericVector& pi_vec, int itermax, double tol, bool plot_iter);
+RcppExport SEXP UltimateDeconvolution_em_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP, SEXP itermaxSEXP, SEXP tolSEXP, SEXP plot_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const NumericMatrix& >::type x_mat(x_matSEXP);
     Rcpp::traits::input_parameter< const NumericMatrix& >::type s_mat(s_matSEXP);
-    Rcpp::traits::input_parameter< const NumericMatrix& >::type v_mat(v_matSEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type pi_vec(pi_vecSEXP);
-    rcpp_result_gen = Rcpp::wrap(em_fix_cpp(x_mat, s_mat, v_mat, pi_vec));
+    Rcpp::traits::input_parameter< NumericMatrix& >::type v_mat(v_matSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type pi_vec(pi_vecSEXP);
+    Rcpp::traits::input_parameter< int >::type itermax(itermaxSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< bool >::type plot_iter(plot_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(em_cpp(x_mat, s_mat, v_mat, pi_vec, itermax, tol, plot_iter));
     return rcpp_result_gen;
 END_RCPP
 }

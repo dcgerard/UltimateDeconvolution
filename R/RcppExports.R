@@ -47,11 +47,24 @@ dmixlike_cpp <- function(x_mat, s_mat, v_mat, pi_vec, return_log = FALSE) {
 
 #' Fixed point iteration from the EM algorithm.
 #'
+#' Note that I am changing v_mat and pi_vec by reference, but also returning them in the list.
+#'
 #' @inheritParams dmixlike
 #'
 #' @author David Gerard
 #'
 em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
-    .Call('UltimateDeconvolution_em_fix_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec)
+    invisible(.Call('UltimateDeconvolution_em_fix_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec))
+}
+
+#' C++ version of EM algorithm.
+#'
+#' @inheritParams ultimate_deconvolution
+#' @param plot_iter A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?
+#'
+#' @author David Gerard
+#'
+em_cpp <- function(x_mat, s_mat, v_mat, pi_vec, itermax = 500L, tol = 10 ^ -5, plot_iter = FALSE) {
+    .Call('UltimateDeconvolution_em_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, itermax, tol, plot_iter)
 }
 
