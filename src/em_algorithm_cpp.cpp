@@ -84,8 +84,6 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //'
 //' @inheritParams ultimate_deconvolution
 //' @param plot_iter A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?
-//' @param plot_fn The plotting function to pass to \code{em_cpp}.
-//'      See \code{\link{plot_llike}}.
 //'
 //' @return A list of the following elements:
 //'
@@ -105,7 +103,7 @@ void em_fix_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 //'
 // [[Rcpp::export]]
 List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
-            NumericMatrix& v_mat, NumericVector& pi_vec, Function plot_fn,
+            NumericMatrix& v_mat, NumericVector& pi_vec,
             int itermax = 500, double tol = 10 ^ -5,
             bool plot_iter = false) {
 
@@ -124,7 +122,6 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
 
   // Progress and plotting pre-processing --------------------------------
   Progress p(itermax, plot_iter);
-  int base_int = std::floor(itermax / 20); // plot only twenty times
 
   while (iterindex < itermax && err > tol) {
 
@@ -134,11 +131,6 @@ List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat,
       convergence = 2;
       return List::create(_["pi_vec"] = pi_vec, _["v_mat"] = v_mat,
                           _["llike_vec"] = llike_vec, _["convergence"] = convergence);
-    }
-
-    // Plot likelihood if desired ----------------------------------------
-    if (plot_iter && iterindex % base_int == 0) {
-      plot_fn(llike_vec, itermax);
     }
 
     // Make updates ------------------------------------------------------

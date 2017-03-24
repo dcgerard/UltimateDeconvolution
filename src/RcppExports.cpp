@@ -64,8 +64,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // em_cpp
-List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, NumericMatrix& v_mat, NumericVector& pi_vec, Function plot_fn, int itermax, double tol, bool plot_iter);
-RcppExport SEXP UltimateDeconvolution_em_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP, SEXP plot_fnSEXP, SEXP itermaxSEXP, SEXP tolSEXP, SEXP plot_iterSEXP) {
+List em_cpp(const NumericMatrix& x_mat, const NumericMatrix& s_mat, NumericMatrix& v_mat, NumericVector& pi_vec, int itermax, double tol, bool plot_iter);
+RcppExport SEXP UltimateDeconvolution_em_cpp(SEXP x_matSEXP, SEXP s_matSEXP, SEXP v_matSEXP, SEXP pi_vecSEXP, SEXP itermaxSEXP, SEXP tolSEXP, SEXP plot_iterSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,11 +73,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericMatrix& >::type s_mat(s_matSEXP);
     Rcpp::traits::input_parameter< NumericMatrix& >::type v_mat(v_matSEXP);
     Rcpp::traits::input_parameter< NumericVector& >::type pi_vec(pi_vecSEXP);
-    Rcpp::traits::input_parameter< Function >::type plot_fn(plot_fnSEXP);
     Rcpp::traits::input_parameter< int >::type itermax(itermaxSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< bool >::type plot_iter(plot_iterSEXP);
-    rcpp_result_gen = Rcpp::wrap(em_cpp(x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax, tol, plot_iter));
+    rcpp_result_gen = Rcpp::wrap(em_cpp(x_mat, s_mat, v_mat, pi_vec, itermax, tol, plot_iter));
     return rcpp_result_gen;
 END_RCPP
 }

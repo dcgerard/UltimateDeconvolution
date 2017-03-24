@@ -61,8 +61,6 @@ em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
 #'
 #' @inheritParams ultimate_deconvolution
 #' @param plot_iter A logical. Should we plot updates (\code{TRUE}) or not (\code{FALSE})?
-#' @param plot_fn The plotting function to pass to \code{em_cpp}.
-#'      See \code{\link{plot_llike}}.
 #'
 #' @return A list of the following elements:
 #'
@@ -80,7 +78,7 @@ em_fix_cpp <- function(x_mat, s_mat, v_mat, pi_vec) {
 #'
 #' @export
 #'
-em_cpp <- function(x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax = 500L, tol = 10 ^ -5, plot_iter = FALSE) {
-    .Call('UltimateDeconvolution_em_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax, tol, plot_iter)
+em_cpp <- function(x_mat, s_mat, v_mat, pi_vec, itermax = 500L, tol = 10 ^ -5, plot_iter = FALSE) {
+    .Call('UltimateDeconvolution_em_cpp', PACKAGE = 'UltimateDeconvolution', x_mat, s_mat, v_mat, pi_vec, itermax, tol, plot_iter)
 }
 

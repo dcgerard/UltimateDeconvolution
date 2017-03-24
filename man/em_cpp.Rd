@@ -4,7 +4,7 @@
 \alias{em_cpp}
 \title{C++ version of EM algorithm.}
 \usage{
-em_cpp(x_mat, s_mat, v_mat, pi_vec, plot_fn, itermax = 500L, tol = 10^-5,
+em_cpp(x_mat, s_mat, v_mat, pi_vec, itermax = 500L, tol = 10^-5,
   plot_iter = FALSE)
 }
 \arguments{
@@ -19,9 +19,6 @@ variables.}
 covariances.}
 
 \item{pi_vec}{A vector of initial values of the mixing proportions.}
-
-\item{plot_fn}{The plotting function to pass to \code{em_cpp}.
-See \code{\link{plot_llike}}.}
 
 \item{itermax}{The maximum number of fixed-point iterations for
 the EM to run.}
